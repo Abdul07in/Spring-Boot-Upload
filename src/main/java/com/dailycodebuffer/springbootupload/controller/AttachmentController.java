@@ -1,12 +1,12 @@
 package com.dailycodebuffer.springbootupload.controller;
 
 import com.dailycodebuffer.springbootupload.entity.Attachment;
-import com.dailycodebuffer.springbootupload.model.ResponseData;
+import com.dailycodebuffer.springbootupload.ResponseData;
 import com.dailycodebuffer.springbootupload.service.AttachmentService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,20 +23,34 @@ public class AttachmentController {
     }
 
     @PostMapping("/upload")
-    public ResponseData uploadFile(@RequestParam("file")MultipartFile file) throws Exception {
+    public ResponseEntity<ResponseData> uploadFile(@RequestParam("") MultipartFile file) {
         Attachment attachment = null;
         String downloadURl = "";
-        attachment = attachmentService.saveAttachment(file);
-        downloadURl = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/download/")
-                .path(attachment.getId())
-                .toUriString();
 
-        return new ResponseData(attachment.getFileName(),
+        try {
+            // Save the file to the database or filesystem
+            attachment = attachmentService.saveAttachment(file);
+
+            // Build the download URL
+            downloadURl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/download/")
+                    .path(attachment.getId())
+                    .toUriString();
+        }  catch (Exception e) {
+            e.printStackTrace(); // Or better use a logger
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseData("An error occurred", "", "", 0));
+        }
+
+        // Return successful response
+        return ResponseEntity.ok(new ResponseData(
+                attachment.getFileName(),
                 downloadURl,
                 file.getContentType(),
-                file.getSize());
+                file.getSize()
+        ));
     }
+
 
     @GetMapping("/download/{fileId}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String fileId) throws Exception {

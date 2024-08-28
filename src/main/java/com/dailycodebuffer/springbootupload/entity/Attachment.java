@@ -1,10 +1,7 @@
 package com.dailycodebuffer.springbootupload.entity;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
@@ -23,6 +20,7 @@ public class Attachment {
     private String fileType;
 
     @Lob
+    @Column(name = "data", columnDefinition = "LONGBLOB")
     private byte[] data;
 
     public Attachment(String fileName, String fileType, byte[] data) {

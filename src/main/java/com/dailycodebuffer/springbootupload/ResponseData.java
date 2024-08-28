@@ -1,4 +1,4 @@
-package com.dailycodebuffer.springbootupload.model;
+package com.dailycodebuffer.springbootupload;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
